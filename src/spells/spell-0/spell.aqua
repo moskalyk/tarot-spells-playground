@@ -1,0 +1,52 @@
+import Op, Debug from "@fluencelabs/aqua-lib/builtin.aqua"
+import Spell from "@fluencelabs/spell/spell_service.aqua"
+
+data Card:
+    number: i32
+    title: string
+    meaning: string
+
+data Context:
+    time: i32
+    ideas: []string
+
+func spell():
+
+    spreads: *[]Card
+    context: *Context
+
+    on peer_id_querent:
+        peers <- getListOfConsentedQuerents()
+        for peer <- peers:
+            on peer:
+                cxt <<- Day.getValues()
+
+    for cx <- cxt:
+        on peer_id_oracle:
+            spreads <<- Tarot.pastPresentFuture(cx)
+
+    for cards <- spreads:
+
+        -- streams
+        crystal_res: *string
+        tree_res: *string
+        moon_res: *string
+
+        -- many ifs for various cards calling services
+        if cards[0].number == 74:
+            peer <- getPeer()
+            on peer_id:
+                crystal_res <<- Crystal.compute(card[0], peer, cxt.ideas)
+
+        if cards[1].number == 109:
+            peer <- getPeer(crystal_res)
+            on peer_id:
+                tree_res <<- Tree.exhale(card[1], peer, cxt.ideas)
+                moon_res <<- Moon.harmonize(card[1], peer, cxt.ideas)
+
+        if cards[2].number == 98 
+            peer <- getPeer(tree_res, moon_res)
+            on peer_id:
+                Chess.play(card[2], peer, cxt.ideas)
+
+    -- to be completed
